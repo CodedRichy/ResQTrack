@@ -1,4 +1,4 @@
 package model;
-public class public_info {
+public class publicinfo {
     
 }

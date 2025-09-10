@@ -1,4 +1,4 @@
 package model;
-public class sos_alert {
+public class sosalert {
     
 }
