@@ -61,7 +61,7 @@ public class PublicInfo {
         info.addShelterInfo("Shelter 1: Govt School, Capacity: 500");
         info.addEmergencyContact("Disaster Helpline: 108");
         info.addEmergencyContact("Police: 100");
-        info.addLiveUpdate("Road from City A to City B is closed due to landslide.");
+        
 
         info.displayPublicInfo();
     }
