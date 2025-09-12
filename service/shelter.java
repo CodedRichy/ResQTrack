@@ -1,4 +1,4 @@
-package model;
-public class shelter {
+package service;
+public class Shelter {
     
 }
