@@ -63,4 +63,5 @@ public class PublicInfo {
         info.addEmergencyContact("Police: 100");
         info.addLiveUpdate("Road from City A to City B is closed due to landslide.");
 
+    }
 }
