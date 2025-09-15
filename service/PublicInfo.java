@@ -1,5 +1,6 @@
 import java.util.*;
-package model;
+package service;
+
 public class PublicInfo {
     private List<String> alerts;
     private List<String> safetyGuidelines;

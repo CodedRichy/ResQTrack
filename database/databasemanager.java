@@ -1,4 +1,4 @@
 package database;
-public class databasemanager {
+public class Databasemanager {
     
 }

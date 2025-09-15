@@ -1,4 +1,4 @@
-package model;
-public class hazard {
+package service;
+public class Hazard {
     
 }

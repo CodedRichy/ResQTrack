@@ -1,4 +1,4 @@
-package model;
-public class report {
+package service;
+public class Report {
     
 }

@@ -1,6 +1,7 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-package model;
+package service;
+
 public class Sosalert {
     private String location;
     private String message;

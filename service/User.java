@@ -1,4 +1,5 @@
-package model;
+/* 
+package service;
 public class User {
     private int userid;
     private String username;
@@ -12,3 +13,4 @@ public class User {
         this.role = role;
     }
 }
+*/
