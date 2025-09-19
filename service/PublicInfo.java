@@ -1,5 +1,5 @@
-import java.util.*;
 package service;
+import java.util.*;
 
 public class PublicInfo {
     private List<String> alerts;
@@ -7,14 +7,14 @@ public class PublicInfo {
     private List<String> shelters;
     private List<String> emergencyContacts;
     
-     public PublicInfo() {
+    public PublicInfo() {
         this.alerts = new ArrayList<>();
         this.safetyGuidelines = new ArrayList<>();
         this.shelters = new ArrayList<>();
         this.emergencyContacts = new ArrayList<>();
-     }
+    }
         
-         public void addAlert(String alert) {
+    public void addAlert(String alert) {
         alerts.add(alert);
     }
 
@@ -33,25 +33,27 @@ public class PublicInfo {
     public void displayPublicInfo() {
         System.out.println("PUBLIC INFORMATION");
 
-        System.out.println("\nALERTS\n");
-            for(String a : alerts){
-                System.out.println("\n- " + a);
-            }
-              System.out.println("\nSAFETY GUIDELINES");
+        System.out.println("\nALERTS");
+        for(String a : alerts){
+            System.out.println("- " + a);
+        }
+
+        System.out.println("\nSAFETY GUIDELINES");
         for (String g : safetyGuidelines) {
-            System.out.println("\n- " + g);
+            System.out.println("- " + g);
         }
 
         System.out.println("\nSHELTERS");
         for (String s : shelters) {
-            System.out.println("\n- " + s);
+            System.out.println("- " + s);
         }
 
         System.out.println("\nEMERGENCY CONTACTS");
         for (String c : emergencyContacts) {
-            System.out.println("\n- " + c);
+            System.out.println("- " + c);
         }
     }
+
     public static void main(String[] args) {
         PublicInfo info = new PublicInfo();
 
@@ -63,7 +65,6 @@ public class PublicInfo {
         info.addEmergencyContact("Disaster Helpline: 108");
         info.addEmergencyContact("Police: 100");
         
-
         info.displayPublicInfo();
     }
 }

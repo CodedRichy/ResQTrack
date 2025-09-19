@@ -1,6 +1,6 @@
 package main;
 
-import userinterface.LoginUI;
+import userinterface.*;
 import javax.swing.SwingUtilities;
 
 /**
@@ -12,7 +12,7 @@ public class Main {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new LoginUI().setVisible(true);
+                new UserUI().setVisible(true);
             }
         });
     }
