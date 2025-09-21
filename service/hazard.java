@@ -1,6 +1,6 @@
 package service;
 public class Hazard {
-    class Hazard {
+    class Hazard{
     private List<String> hazards;
 
     public Hazard() {
