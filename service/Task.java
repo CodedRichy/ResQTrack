@@ -63,12 +63,4 @@ public class Task {
         System.out.println("Status: " + status);
         System.out.println("--------------------");
     }
-
-    public static void main(String[] args) {
-        Task task1 = new Task(101, "Deliver medical supplies", 2, "Main Street Shelter");
-        task1.displayTaskDetails();
-        task1.setStatus("In Progress");
-        System.out.println("\nTask status updated.");
-        task1.displayTaskDetails();
-    }
 }
