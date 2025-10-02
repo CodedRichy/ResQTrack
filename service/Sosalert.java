@@ -77,12 +77,4 @@ public class SosAlert {
         System.out.println("Status: " + status);
         System.out.println("-----------------");
     }
-
-    public static void main(String[] args) {
-        SosAlert alert1 = new SosAlert(901, 5, "123 Oak Avenue, Flood Zone B", "Trapped by floodwaters. Need immediate assistance.");
-        alert1.displayAlert();
-        alert1.setStatus("Responded");
-        System.out.println("\nAlert status updated.");
-        alert1.displayAlert();
-    }
 }
