@@ -1,6 +1,9 @@
 package service;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Hazard {
-    class Hazard{
     private List<String> hazards;
 
     public Hazard() {
@@ -23,8 +26,4 @@ public class Hazard {
         }
         System.out.println("===========================\n");
     }
-
-
-    
-
 }
