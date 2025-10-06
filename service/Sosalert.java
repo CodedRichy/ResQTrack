@@ -1,5 +1,6 @@
 package service;
 import java.util.Date;
+
 public class SosAlert {
 
     private int alertId;
@@ -15,9 +16,8 @@ public class SosAlert {
         this.location = location;
         this.message = message;
         this.timestamp = new Date();
-        this.status = "Active"; 
+        this.status = "Active";
     }
-
 
     public int getAlertId() {
         return alertId;
@@ -65,16 +65,5 @@ public class SosAlert {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public void displayAlert() {
-        System.out.println("--- SOS Alert ---");
-        System.out.println("Alert ID: " + alertId);
-        System.out.println("User ID: " + userId);
-        System.out.println("Location: " + location);
-        System.out.println("Timestamp: " + timestamp);
-        System.out.println("Message: " + message);
-        System.out.println("Status: " + status);
-        System.out.println("-----------------");
     }
 }
