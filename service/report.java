@@ -1,4 +1,8 @@
 package service;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Report {
 
     private int reportId;
@@ -7,10 +11,8 @@ public class Report {
     private int casualties;
     private String damages;
 
-    
     private static List<Report> reports = new ArrayList<>();
 
-   
     public Report(int reportId, int userId, String description, int casualties, String damages) {
         this.reportId = reportId;
         this.userId = userId;
@@ -19,13 +21,11 @@ public class Report {
         this.damages = damages;
     }
 
-    
     public void submitReport() {
         reports.add(this);
         System.out.println("Report submitted: " + description);
     }
 
-    
     public static void viewReports() {
         System.out.println("\n===== REPORTS =====");
         if (reports.isEmpty()) {
@@ -42,17 +42,13 @@ public class Report {
         }
     }
 
-    
     public static void main(String[] args) {
-        
         Report r1 = new Report(1, 101, "Flood in city area", 5, "Houses damaged");
         r1.submitReport();
 
         Report r2 = new Report(2, 102, "Earthquake in town", 10, "Buildings collapsed");
         r2.submitReport();
 
-       
         Report.viewReports();
     }
 }
-
