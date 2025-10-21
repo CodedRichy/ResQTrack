@@ -7,17 +7,14 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskUI extends JFrame {
+public class TaskPanel extends JPanel {
 
     private final DefaultTableModel tableModel;
     private final JTable taskTable;
     private static final List<Task> taskList = new ArrayList<>();
 
-    public TaskUI() {
-        setTitle("Task Management");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+    public TaskPanel() {
+        this.setLayout(new BorderLayout());
 
         if (taskList.isEmpty()) {
             taskList.add(new Task(1, "Deliver supplies to Community Center", 2, "Sector A"));

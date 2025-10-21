@@ -1,36 +1,37 @@
 package service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Hazard {
-    private List<String> hazards;
+    private int hazardId;
+    private String description;
+    private String location;
+    private String status;
 
-    public Hazard() {
-        this.hazards = new ArrayList<>();
+    public Hazard(int hazardId, String description, String location) {
+        this.hazardId = hazardId;
+        this.description = description;
+        this.location = location;
+        this.status = "Active"; 
     }
 
-    public void addHazard(String hazard) {
-        this.hazards.add(hazard);
-        System.out.println("Hazard added: " + hazard);
+
+    public int getHazardId() { 
+        return hazardId; 
+    }
+    
+    public String getDescription() { 
+        return description; 
+    }
+    
+    public String getLocation() { 
+        return location; 
+    }
+    
+    public String getStatus() { 
+        return status; 
     }
 
-    public void viewHazard() {
-        System.out.println("\n===== LIST OF HAZARDS =====");
-        if (this.hazards.isEmpty()) {
-            System.out.println("No hazards recorded.");
-        } else {
-            for (int i = 0; i < this.hazards.size(); i++) {
-                System.out.println((i + 1) + ". " + this.hazards.get(i));
-            }
-        }
-        System.out.println("===========================\n");
-    }
-
-    public static void main(String[] args) {
-        Hazard hazardTracker = new Hazard();
-        hazardTracker.addHazard("Fallen power line on Elm Street");
-        hazardTracker.addHazard("Flooding near the river crossing");
-        hazardTracker.viewHazard();
+    // Setter for status
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

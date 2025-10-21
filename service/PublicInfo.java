@@ -1,57 +1,35 @@
 package service;
-import java.util.*;
 
 public class PublicInfo {
-    private List<String> alerts;
-    private List<String> safetyGuidelines;
-    private List<String> shelters;
-    private List<String> emergencyContacts;
-    
-     public PublicInfo() {
-        this.alerts = new ArrayList<>();
-        this.safetyGuidelines = new ArrayList<>();
-        this.shelters = new ArrayList<>();
-        this.emergencyContacts = new ArrayList<>();
+    private int infoId;
+    private String type;
+    private String description;
+    private String status;
+
+    public PublicInfo(int infoId, String type, String description) {
+        this.infoId = infoId;
+        this.type = type;
+        this.description = description;
+        this.status = "Active";
     }
-    public void addAlert(String alert) {
-        alerts.add(alert);
+
+    public int getInfoId() { 
+        return infoId; 
     }
-    public void addSafetyGuideline(String guideline) {
-        safetyGuidelines.add(guideline);
+
+    public String getType() { 
+        return type; 
     }
-    public void addShelterInfo(String shelter) {
-        shelters.add(shelter);
+
+    public String getDescription() { 
+        return description; 
     }
-    public void addEmergencyContact(String contact) {
-        emergencyContacts.add(contact);
+
+    public String getStatus() { 
+        return status; 
     }
-    public void displayPublicInfo() {
-        System.out.println("PUBLIC INFORMATION");
-        System.out.println("\nALERTS");
-        for(String a : alerts){
-            System.out.println("- " + a);
-        }
-        System.out.println("\nSAFETY GUIDELINES");
-        for (String g : safetyGuidelines) {
-            System.out.println("\n- " + g);
-        }
-        System.out.println("\nSHELTERS");
-        for (String s : shelters) {
-            System.out.println("\n- " + s);
-        }
-        System.out.println("\nEMERGENCY CONTACTS");
-        for (String c : emergencyContacts) {
-            System.out.println("\n- " + c);
-        }
-    }
-    public static void main(String[] args) {
-        PublicInfo info = new PublicInfo();
-        info.addAlert("Flood warning in coastal area - Red Alert");
-        info.addSafetyGuideline("Do not step into floodwaters.");
-        info.addSafetyGuideline("Keep emergency kit ready.");
-        info.addShelterInfo("Shelter 1: Govt School, Capacity: 500");
-        info.addEmergencyContact("Disaster Helpline: 108");
-        info.addEmergencyContact("Police: 100");
-        info.displayPublicInfo();
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

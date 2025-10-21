@@ -7,17 +7,14 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReportUI extends JFrame {
+public class ReportPanel extends JPanel {
 
     private final DefaultTableModel tableModel;
     private final JTable reportTable;
     private static final List<Report> reportList = new ArrayList<>();
 
-    public ReportUI() {
-        setTitle("Incident Reports");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+    public ReportPanel() {
+        this.setLayout(new BorderLayout());
 
         if (reportList.isEmpty()) {
             reportList.add(new Report(1, 101, "Flood in city area", 5, "Houses damaged"));

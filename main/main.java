@@ -2,41 +2,40 @@ package main;
 
 import userinterface.*;
 import javax.swing.*;
-import java.awt.*;
 
 public class Main {
     public static void main(String[] args) {
+
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Application Dashboard");
+            JFrame frame = new JFrame("ResQTrack - Disaster Management System");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(350, 400);
+            frame.setSize(900, 700);
             frame.setLocationRelativeTo(null);
 
-            JPanel panel = new JPanel(new GridLayout(5, 1, 15, 15));
-            panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+            JTabbedPane tabbedPane = new JTabbedPane();
 
-            JButton userButton = new JButton("User Login");
-            userButton.addActionListener(e -> new UserUI().setVisible(true));
-
-            JButton shelterButton = new JButton("Manage Shelters");
-            shelterButton.addActionListener(e -> new ShelterUI().setVisible(true));
-
-            JButton taskButton = new JButton("Manage Tasks");
-            taskButton.addActionListener(e -> new TaskUI().setVisible(true));
-
-            JButton sosButton = new JButton("Manage SOS Alerts");
-            sosButton.addActionListener(e -> new SosAlertUI().setVisible(true));
+            JPanel shelterPanel = new ShelterPanel();
+            JPanel taskPanel = new TaskPanel();
+            JPanel sosAlertPanel = new SosAlertPanel();
+            JPanel reportPanel = new ReportPanel();
+            JPanel hazardPanel = new HazardPanel();
+            JPanel publicInfoPanel = new PublicInfoPanel();
             
-            JButton reportButton = new JButton("Manage Reports");
-            reportButton.addActionListener(e -> new ReportUI().setVisible(true));
+            JPanel userPanel = new UserPanel(tabbedPane);
 
-            panel.add(userButton);
-            panel.add(shelterButton);
-            panel.add(taskButton);
-            panel.add(sosButton);
-            panel.add(reportButton);
+            tabbedPane.addTab("User Login", userPanel);
+            tabbedPane.addTab("Shelters", shelterPanel);
+            tabbedPane.addTab("Tasks", taskPanel);
+            tabbedPane.addTab("SOS Alerts", sosAlertPanel);
+            tabbedPane.addTab("Reports", reportPanel);
+            tabbedPane.addTab("Hazards", hazardPanel);
+            tabbedPane.addTab("Public Info", publicInfoPanel);
 
-            frame.add(panel);
+            for (int i = 1; i < tabbedPane.getTabCount(); i++) {
+                tabbedPane.setEnabledAt(i, false);
+            }
+
+            frame.add(tabbedPane);
             frame.setVisible(true);
         });
     }

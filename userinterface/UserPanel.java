@@ -8,61 +8,54 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple Swing UI for user login.
- */
-public class UserUI extends JFrame {
+public class UserPanel extends JPanel {
 
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
     private List<User> userDatabase;
+    private JTabbedPane mainPane;
 
-    public UserUI() {
-        // For demonstration, we'll create a hardcoded list of users.
-        // In a real application, this would come from a database.
+    public UserPanel(JTabbedPane mainPane) {
+        this.mainPane = mainPane;
         initializeUserDatabase();
 
-        setTitle("User Login");
-        setSize(400, 250);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Center the window
-
-        // Use a more flexible layout manager
-        setLayout(new GridBagLayout());
+        this.setLayout(new GridBagLayout());
+        
+        JPanel loginFormPanel = new JPanel(new GridBagLayout());
+        loginFormPanel.setBorder(BorderFactory.createTitledBorder("Login Required"));
+        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Username Label and Field
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(new JLabel("Username:"), gbc);
+        loginFormPanel.add(new JLabel("Username:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
         usernameField = new JTextField(15);
-        add(usernameField, gbc);
+        loginFormPanel.add(usernameField, gbc);
 
-        // Password Label and Field
         gbc.gridx = 0;
         gbc.gridy = 1;
-        add(new JLabel("Password:"), gbc);
+        loginFormPanel.add(new JLabel("Password:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 1;
         passwordField = new JPasswordField(15);
-        add(passwordField, gbc);
+        loginFormPanel.add(passwordField, gbc);
 
-        // Login Button
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.gridwidth = 2; // Make button span two columns
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         loginButton = new JButton("Login");
-        add(loginButton, gbc);
+        loginFormPanel.add(loginButton, gbc);
 
-        // Add action listener to the login button
+        this.add(loginFormPanel, new GridBagConstraints());
+
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -71,9 +64,6 @@ public class UserUI extends JFrame {
         });
     }
 
-    /**
-     * Initializes a sample user database.
-     */
     private void initializeUserDatabase() {
         userDatabase = new ArrayList<>();
         userDatabase.add(new User(1, "admin", "pass123", "Admin"));
@@ -81,15 +71,11 @@ public class UserUI extends JFrame {
         userDatabase.add(new User(3, "guest", "pass789", "Public"));
     }
 
-    /**
-     * Handles the login logic when the button is clicked.
-     */
     private void handleLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
         User authenticatedUser = null;
 
-        // Check credentials against the user database
         for (User user : userDatabase) {
             if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
                 authenticatedUser = user;
@@ -98,19 +84,48 @@ public class UserUI extends JFrame {
         }
 
         if (authenticatedUser != null) {
-            // Successful login
             JOptionPane.showMessageDialog(this,
                     "Welcome, " + authenticatedUser.getUsername() + "!\nYour role is: " + authenticatedUser.getRole(),
                     "Login Successful",
                     JOptionPane.INFORMATION_MESSAGE);
-            // Here you could open a new window based on the user's role
-            // e.g., openAdminDashboard();
+            
+            configureTabsForRole(authenticatedUser.getRole());
+
         } else {
-            // Failed login
             JOptionPane.showMessageDialog(this,
                     "Invalid username or password.",
                     "Login Failed",
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void configureTabsForRole(String role) {
+        int welcomeTab = 1;
+
+        switch (role) {
+            case "Admin":
+                enableTabs(new int[]{1, 2, 3, 4, 5, 6});
+                welcomeTab = 1;
+                break;
+            case "Responder":
+                enableTabs(new int[]{2, 3, 4, 5});
+                welcomeTab = 2;
+                break;
+            case "Public":
+                enableTabs(new int[]{1, 6});
+                welcomeTab = 1;
+                break;
+        }
+        
+        mainPane.setSelectedIndex(welcomeTab);
+        mainPane.setEnabledAt(0, false);
+    }
+
+    private void enableTabs(int[] tabIndices) {
+        for (int index : tabIndices) {
+            if (index < mainPane.getTabCount()) {
+                mainPane.setEnabledAt(index, true);
+            }
         }
     }
 }

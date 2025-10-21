@@ -7,16 +7,15 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShelterUI extends JFrame {
+public class ShelterPanel extends JPanel { 
+    
     private final DefaultTableModel tableModel;
     private final JTable shelterTable;
     private static final List<Shelter> shelterList = new ArrayList<>();
 
-    public ShelterUI() {
-        setTitle("Shelter Management");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+    public ShelterPanel() { 
+        
+        this.setLayout(new BorderLayout());
 
         if (shelterList.isEmpty()) {
             shelterList.add(new Shelter(1, "Community Center", 150, 500, 300, 100));
@@ -78,14 +77,9 @@ public class ShelterUI extends JFrame {
 
         try {
             int newAvailableCap = Integer.parseInt(newAvailableStr);
-            boolean success = selectedShelter.updateShelter(newAvailableCap, selectedShelter.getFood(), selectedShelter.getWater(), selectedShelter.getMedicine());
+            selectedShelter.updateShelter(newAvailableCap, selectedShelter.getFood(), selectedShelter.getWater(), selectedShelter.getMedicine());
+            refreshTable();
             
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Shelter updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                refreshTable();
-            } else {
-                JOptionPane.showMessageDialog(this, "Update failed. Available capacity must be between 0 and " + selectedShelter.getCapacity() + ".", "Update Error", JOptionPane.ERROR_MESSAGE);
-            }
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Invalid number. Please enter a valid integer.", "Format Error", JOptionPane.ERROR_MESSAGE);
         }

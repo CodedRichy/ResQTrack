@@ -7,17 +7,14 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SosAlertUI extends JFrame {
+public class SosAlertPanel extends JPanel {
 
     private final DefaultTableModel tableModel;
     private final JTable alertTable;
     private static final List<SosAlert> alertList = new ArrayList<>();
 
-    public SosAlertUI() {
-        setTitle("SOS Alert Management");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+    public SosAlertPanel() {
+        this.setLayout(new BorderLayout());
 
         if (alertList.isEmpty()) {
             alertList.add(new SosAlert(1, 101, "123 Maple St", "Building collapse, assistance needed."));
