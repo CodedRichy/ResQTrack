@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UserPanel extends JPanel {
 
@@ -15,9 +16,11 @@ public class UserPanel extends JPanel {
     private JButton loginButton;
     private List<User> userDatabase;
     private JTabbedPane mainPane;
+    private Map<String, JPanel> panels;
 
-    public UserPanel(JTabbedPane mainPane) {
+    public UserPanel(JTabbedPane mainPane, Map<String, JPanel> panels) {
         this.mainPane = mainPane;
+        this.panels = panels;
         initializeUserDatabase();
 
         this.setLayout(new GridBagLayout());
@@ -100,31 +103,32 @@ public class UserPanel extends JPanel {
     }
 
     private void configureTabsForRole(String role) {
-        int welcomeTab = 1;
+        String welcomePanelKey = "Shelters";
 
         switch (role) {
             case "Admin":
-                enableTabs(new int[]{1, 2, 3, 4, 5, 6});
-                welcomeTab = 1;
+                enableTabs(new String[]{"Shelters", "Tasks", "SOS", "Reports", "Hazards", "PublicInfo"});
+                welcomePanelKey = "Shelters";
                 break;
             case "Responder":
-                enableTabs(new int[]{2, 3, 4, 5});
-                welcomeTab = 2;
+                enableTabs(new String[]{"Tasks", "SOS", "Reports", "Hazards"});
+                welcomePanelKey = "Tasks";
                 break;
             case "Public":
-                enableTabs(new int[]{1, 6});
-                welcomeTab = 1;
+                enableTabs(new String[]{"Shelters", "PublicInfo"});
+                welcomePanelKey = "Shelters";
                 break;
         }
         
-        mainPane.setSelectedIndex(welcomeTab);
+        mainPane.setSelectedComponent(panels.get(welcomePanelKey));
         mainPane.setEnabledAt(0, false);
     }
 
-    private void enableTabs(int[] tabIndices) {
-        for (int index : tabIndices) {
-            if (index < mainPane.getTabCount()) {
-                mainPane.setEnabledAt(index, true);
+    private void enableTabs(String[] panelKeys) {
+        for (String key : panelKeys) {
+            JPanel panelToEnable = panels.get(key);
+            if (panelToEnable != null) {
+                mainPane.setEnabledAt(mainPane.indexOfComponent(panelToEnable), true);
             }
         }
     }

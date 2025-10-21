@@ -2,6 +2,8 @@ package main;
 
 import userinterface.*;
 import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,8 +22,16 @@ public class Main {
             JPanel reportPanel = new ReportPanel();
             JPanel hazardPanel = new HazardPanel();
             JPanel publicInfoPanel = new PublicInfoPanel();
-            
-            JPanel userPanel = new UserPanel(tabbedPane);
+
+            Map<String, JPanel> panels = new HashMap<>();
+            panels.put("Shelters", shelterPanel);
+            panels.put("Tasks", taskPanel);
+            panels.put("SOS", sosAlertPanel);
+            panels.put("Reports", reportPanel);
+            panels.put("Hazards", hazardPanel);
+            panels.put("PublicInfo", publicInfoPanel);
+
+            JPanel userPanel = new UserPanel(tabbedPane, panels);
 
             tabbedPane.addTab("User Login", userPanel);
             tabbedPane.addTab("Shelters", shelterPanel);
