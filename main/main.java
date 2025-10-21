@@ -1,12 +1,34 @@
 package main;
 
 import userinterface.*;
+import database.*;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
+        // Initialize database
+        System.out.println("Initializing database...");
+        DatabaseInitializer.initializeDatabase();
+        
+        // Test database connection
+        System.out.println("Testing database connection...");
+        DatabaseService dbService = DatabaseService.getInstance();
+        try {
+            // Test connection by fetching some data
+            var users = dbService.getAllUsers();
+            System.out.println("Database connection successful! Found " + users.size() + " users.");
+        } catch (Exception e) {
+            System.err.println("Database connection failed: " + e.getMessage());
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, 
+                "Database connection failed. Please check your MySQL server and configuration.\n" +
+                "Error: " + e.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("ResQTrack - Disaster Management System");

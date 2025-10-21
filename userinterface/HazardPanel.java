@@ -1,25 +1,21 @@
 package userinterface;
 
 import service.Hazard;
+import database.DatabaseService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class HazardPanel extends JPanel {
 
     private final DefaultTableModel tableModel;
     private final JTable hazardTable;
-    private static final List<Hazard> hazardList = new ArrayList<>();
+    private final DatabaseService databaseService;
 
     public HazardPanel() {
         this.setLayout(new BorderLayout());
-
-        if (hazardList.isEmpty()) {
-            hazardList.add(new Hazard(1, "Fallen power line", "Elm Street"));
-            hazardList.add(new Hazard(2, "Flooding", "River Crossing"));
-        }
+        this.databaseService = DatabaseService.getInstance();
 
         String[] columnNames = {"Hazard ID", "Description", "Location", "Status"};
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -43,14 +39,21 @@ public class HazardPanel extends JPanel {
 
     private void refreshTable() {
         tableModel.setRowCount(0);
-        for (Hazard hazard : hazardList) {
-            Object[] row = {
-                hazard.getHazardId(),
-                hazard.getDescription(),
-                hazard.getLocation(),
-                hazard.getStatus()
-            };
-            tableModel.addRow(row);
+        try {
+            List<Hazard> hazardList = databaseService.getAllHazards();
+            for (Hazard hazard : hazardList) {
+                Object[] row = {
+                    hazard.getHazardId(),
+                    hazard.getDescription(),
+                    hazard.getLocation(),
+                    hazard.getStatus()
+                };
+                tableModel.addRow(row);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading hazards: " + e.getMessage(), 
+                "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
@@ -73,10 +76,22 @@ public class HazardPanel extends JPanel {
                 return;
             }
 
-            int hazardId = hazardList.isEmpty() ? 1 : hazardList.get(hazardList.size() - 1).getHazardId() + 1;
-            Hazard newHazard = new Hazard(hazardId, description, location);
-            hazardList.add(newHazard);
-            refreshTable();
+            try {
+                // Create a temporary Hazard object for insertion
+                // The database will auto-generate the ID
+                Hazard newHazard = new Hazard(0, description, location);
+                boolean success = databaseService.createHazard(newHazard);
+                
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Hazard created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to create hazard.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error creating hazard: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
         }
     }
 
@@ -87,8 +102,20 @@ public class HazardPanel extends JPanel {
             return;
         }
 
-        Hazard selectedHazard = hazardList.get(selectedRow);
-        selectedHazard.setStatus("Resolved");
-        refreshTable();
+        try {
+            // Get the hazard ID from the selected row
+            int hazardId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            
+            boolean success = databaseService.updateHazardStatus(hazardId, "Resolved");
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Hazard resolved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                refreshTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to resolve hazard.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error resolving hazard: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 }

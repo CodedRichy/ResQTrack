@@ -1,25 +1,21 @@
 package userinterface;
 
 import service.Report;
+import database.DatabaseService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ReportPanel extends JPanel {
 
     private final DefaultTableModel tableModel;
     private final JTable reportTable;
-    private static final List<Report> reportList = new ArrayList<>();
+    private final DatabaseService databaseService;
 
     public ReportPanel() {
         this.setLayout(new BorderLayout());
-
-        if (reportList.isEmpty()) {
-            reportList.add(new Report(1, 101, "Flood in city area", 5, "Houses damaged"));
-            reportList.add(new Report(2, 102, "Earthquake in town", 10, "Buildings collapsed"));
-        }
+        this.databaseService = DatabaseService.getInstance();
 
         String[] columnNames = {"Report ID", "User ID", "Description", "Casualties", "Damages"};
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -39,15 +35,22 @@ public class ReportPanel extends JPanel {
 
     private void refreshTable() {
         tableModel.setRowCount(0);
-        for (Report report : reportList) {
-            Object[] row = {
-                    report.getReportId(),
-                    report.getUserId(),
-                    report.getDescription(),
-                    report.getCasualties(),
-                    report.getDamages()
-            };
-            tableModel.addRow(row);
+        try {
+            List<Report> reportList = databaseService.getAllReports();
+            for (Report report : reportList) {
+                Object[] row = {
+                        report.getReportId(),
+                        report.getUserId(),
+                        report.getDescription(),
+                        report.getCasualties(),
+                        report.getDamages()
+                };
+                tableModel.addRow(row);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading reports: " + e.getMessage(), 
+                "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
@@ -77,10 +80,17 @@ public class ReportPanel extends JPanel {
                     return;
                 }
 
-                int reportId = reportList.isEmpty() ? 1 : reportList.get(reportList.size() - 1).getReportId() + 1;
-                Report newReport = new Report(reportId, userId, description, casualties, damages);
-                reportList.add(newReport);
-                refreshTable();
+                // Create a temporary Report object for insertion
+                // The database will auto-generate the ID
+                Report newReport = new Report(0, userId, description, casualties, damages);
+                boolean success = databaseService.createReport(newReport);
+                
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Report submitted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to submit report.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid User ID or Casualties. Please enter numbers.", "Format Error", JOptionPane.ERROR_MESSAGE);

@@ -1,27 +1,21 @@
 package userinterface;
 
 import service.PublicInfo;
+import database.DatabaseService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class PublicInfoPanel extends JPanel {
 
     private final DefaultTableModel tableModel;
     private final JTable infoTable;
-    private static final List<PublicInfo> infoList = new ArrayList<>();
+    private final DatabaseService databaseService;
 
     public PublicInfoPanel() {
         this.setLayout(new BorderLayout());
-
-        if (infoList.isEmpty()) {
-            infoList.add(new PublicInfo(1, "Alert", "Flood warning in coastal area"));
-            infoList.add(new PublicInfo(2, "Guideline", "Keep emergency kit ready."));
-            infoList.add(new PublicInfo(3, "Shelter", "Govt School, Capacity: 500"));
-            infoList.add(new PublicInfo(4, "Contact", "Disaster Helpline: 108"));
-        }
+        this.databaseService = DatabaseService.getInstance();
 
         String[] columnNames = {"ID", "Type", "Description", "Status"};
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -45,19 +39,26 @@ public class PublicInfoPanel extends JPanel {
 
     private void refreshTable() {
         tableModel.setRowCount(0);
-        for (PublicInfo item : infoList) {
-            Object[] row = {
-                item.getInfoId(),
-                item.getType(),
-                item.getDescription(),
-                item.getStatus()
-            };
-            tableModel.addRow(row);
+        try {
+            List<PublicInfo> infoList = databaseService.getAllPublicInfo();
+            for (PublicInfo item : infoList) {
+                Object[] row = {
+                    item.getInfoId(),
+                    item.getType(),
+                    item.getDescription(),
+                    item.getStatus()
+                };
+                tableModel.addRow(row);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading data from database: " + e.getMessage(), 
+                "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
     private void createInfoDialog() {
-        String[] infoTypes = {"Alert", "Guideline", "Shelter", "Contact"};
+        String[] infoTypes = {"Alert", "Guideline", "Shelter", "Contact", "Update"};
         JComboBox<String> typeDropdown = new JComboBox<>(infoTypes);
         JTextField descriptionField = new JTextField();
 
@@ -76,10 +77,22 @@ public class PublicInfoPanel extends JPanel {
                 return;
             }
 
-            int infoId = infoList.isEmpty() ? 1 : infoList.get(infoList.size() - 1).getInfoId() + 1;
-            PublicInfo newItem = new PublicInfo(infoId, type, description);
-            infoList.add(newItem);
-            refreshTable();
+            try {
+                // Create a temporary PublicInfo object for insertion
+                // The database will auto-generate the ID
+                PublicInfo newItem = new PublicInfo(0, type, description);
+                boolean success = databaseService.createPublicInfo(newItem);
+                
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Public info added successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to add public info.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Error adding public info: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
         }
     }
 
@@ -90,8 +103,22 @@ public class PublicInfoPanel extends JPanel {
             return;
         }
 
-        PublicInfo selectedItem = infoList.get(selectedRow);
-        selectedItem.setStatus("Archived");
-        refreshTable();
+        try {
+            // Get the ID from the selected row
+            int infoId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            
+            // Update the status in the database
+            boolean success = databaseService.updatePublicInfoStatus(infoId, "Archived");
+            
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Public info archived successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                refreshTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to archive public info.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error archiving public info: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 }

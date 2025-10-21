@@ -1,25 +1,21 @@
 package userinterface;
 
 import service.Task;
+import database.DatabaseService;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TaskPanel extends JPanel {
 
     private final DefaultTableModel tableModel;
     private final JTable taskTable;
-    private static final List<Task> taskList = new ArrayList<>();
+    private final DatabaseService databaseService;
 
     public TaskPanel() {
         this.setLayout(new BorderLayout());
-
-        if (taskList.isEmpty()) {
-            taskList.add(new Task(1, "Deliver supplies to Community Center", 2, "Sector A"));
-            taskList.add(new Task(2, "Assess damage at High School Gym", 2, "Sector B"));
-        }
+        this.databaseService = DatabaseService.getInstance();
 
         String[] columnNames = {"Task ID", "Description", "Location", "Assigned User ID", "Status"};
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -43,15 +39,22 @@ public class TaskPanel extends JPanel {
 
     private void refreshTable() {
         tableModel.setRowCount(0);
-        for (Task task : taskList) {
-            Object[] row = {
-                    task.getTaskId(),
-                    task.getDescription(),
-                    task.getLocation(),
-                    task.getAssignedUserId(),
-                    task.getStatus()
-            };
-            tableModel.addRow(row);
+        try {
+            List<Task> taskList = databaseService.getAllTasks();
+            for (Task task : taskList) {
+                Object[] row = {
+                        task.getTaskId(),
+                        task.getDescription(),
+                        task.getLocation(),
+                        task.getAssignedUserId(),
+                        task.getStatus()
+                };
+                tableModel.addRow(row);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading tasks: " + e.getMessage(), 
+                "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
@@ -78,10 +81,17 @@ public class TaskPanel extends JPanel {
                     return;
                 }
 
-                int taskId = taskList.isEmpty() ? 1 : taskList.get(taskList.size() - 1).getTaskId() + 1;
-                Task newTask = new Task(taskId, description, userId, location);
-                taskList.add(newTask);
-                refreshTable();
+                // Create a temporary Task object for insertion
+                // The database will auto-generate the ID
+                Task newTask = new Task(0, description, userId, location);
+                boolean success = databaseService.createTask(newTask);
+                
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Task created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to create task.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
 
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid User ID. Please enter a number.", "Format Error", JOptionPane.ERROR_MESSAGE);
@@ -96,15 +106,27 @@ public class TaskPanel extends JPanel {
             return;
         }
 
-        Task selectedTask = taskList.get(selectedRow);
-        String[] statuses = {"Pending", "In Progress", "Completed"};
+        try {
+            // Get the task ID from the selected row
+            int taskId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            String currentStatus = (String) tableModel.getValueAt(selectedRow, 4);
+            
+            String[] statuses = {"Pending", "In Progress", "Completed", "Cancelled"};
+            Object newStatus = JOptionPane.showInputDialog(this, "Select new status for Task " + taskId,
+                    "Update Status", JOptionPane.PLAIN_MESSAGE, null, statuses, currentStatus);
 
-        Object newStatus = JOptionPane.showInputDialog(this, "Select new status for Task " + selectedTask.getTaskId(),
-                "Update Status", JOptionPane.PLAIN_MESSAGE, null, statuses, selectedTask.getStatus());
-
-        if (newStatus != null) {
-            selectedTask.setStatus((String) newStatus);
-            refreshTable();
+            if (newStatus != null) {
+                boolean success = databaseService.updateTaskStatus(taskId, (String) newStatus);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Task status updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update task status.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error updating task status: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 }
