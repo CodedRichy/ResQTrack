@@ -1,6 +1,3 @@
--- Database Schema for ResQTrack Disaster Management System
--- Database: disaster_management_system
-
 CREATE DATABASE IF NOT EXISTS disaster_management_system;
 USE disaster_management_system;
 
