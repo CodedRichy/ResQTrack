@@ -28,9 +28,13 @@ public class ShelterPanel extends JPanel {
         JButton updateButton = new JButton("Update Shelter");
         updateButton.addActionListener(e -> updateShelterDialog());
         
+        JButton deleteButton = new JButton("Delete Shelter");
+        deleteButton.addActionListener(e -> deleteShelterDialog());
+        
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
+        buttonPanel.add(deleteButton);
 
         add(new JScrollPane(shelterTable), BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
@@ -85,19 +89,64 @@ public class ShelterPanel extends JPanel {
             return;
         }
 
-        Shelter selectedShelter = shelterList.get(selectedRow);
-        
-        String newAvailableStr = JOptionPane.showInputDialog(this, "Enter new available capacity for " + selectedShelter.getName() + ":", selectedShelter.getAvailableCapacity());
-        
-        if (newAvailableStr == null) return;
-
         try {
+            // Get the shelter ID from the selected row
+            int shelterId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            String shelterName = (String) tableModel.getValueAt(selectedRow, 1);
+            int currentAvailable = (Integer) tableModel.getValueAt(selectedRow, 3);
+            
+            String newAvailableStr = JOptionPane.showInputDialog(this, "Enter new available capacity for " + shelterName + ":", currentAvailable);
+            
+            if (newAvailableStr == null) return;
+
             int newAvailableCap = Integer.parseInt(newAvailableStr);
-            selectedShelter.updateShelter(newAvailableCap, selectedShelter.getFood(), selectedShelter.getWater(), selectedShelter.getMedicine());
-            refreshTable();
+            int currentFood = (Integer) tableModel.getValueAt(selectedRow, 4);
+            int currentWater = (Integer) tableModel.getValueAt(selectedRow, 5);
+            int currentMedicine = (Integer) tableModel.getValueAt(selectedRow, 6);
+            
+            boolean success = databaseService.updateShelterResources(shelterId, newAvailableCap, currentFood, currentWater, currentMedicine);
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Shelter updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                refreshTable();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to update shelter.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
             
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Invalid number. Please enter a valid integer.", "Format Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error updating shelter: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+    
+    private void deleteShelterDialog() {
+        int selectedRow = shelterTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a shelter to delete.", "Selection Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int shelterId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            String shelterName = (String) tableModel.getValueAt(selectedRow, 1);
+            
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Are you sure you want to delete shelter '" + shelterName + "'?\nThis action cannot be undone.", 
+                "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean success = databaseService.deleteShelter(shelterId);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Shelter deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete shelter.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error deleting shelter: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 }
