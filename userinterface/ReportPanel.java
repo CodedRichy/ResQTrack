@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class ReportPanel extends JPanel {
+public class ReportPanel extends JPanel implements AdminControllable {
 
     private final DefaultTableModel tableModel;
     private final JTable reportTable;
@@ -24,13 +24,58 @@ public class ReportPanel extends JPanel {
         JButton submitReportButton = new JButton("Submit New Report");
         submitReportButton.addActionListener(e -> submitReportDialog());
 
+        JButton deleteReportButton = new JButton("Delete Report");
+        deleteReportButton.addActionListener(e -> deleteReportDialog());
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(submitReportButton);
+        buttonPanel.add(deleteReportButton);
 
         add(new JScrollPane(reportTable), BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
         refreshTable();
+    }
+
+    @Override
+    public void setAdminMode(boolean isAdmin) {
+        if (getComponentCount() >= 2 && getComponent(1) instanceof JPanel) {
+            JPanel buttonPanel = (JPanel) getComponent(1);
+            for (Component c : buttonPanel.getComponents()) {
+                if (c instanceof JButton && ((JButton) c).getText().toLowerCase().contains("delete")) {
+                    c.setVisible(isAdmin);
+                }
+            }
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
+    }
+
+    private void deleteReportDialog() {
+        int selectedRow = reportTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a report to delete.", "Selection Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int reportId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to delete Report #" + reportId + "?\nThis action cannot be undone.",
+                    "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean success = DatabaseService.getInstance().deleteReport(reportId);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Report deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete report.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error deleting report: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     private void refreshTable() {

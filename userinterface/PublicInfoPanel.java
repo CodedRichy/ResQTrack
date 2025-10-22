@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class PublicInfoPanel extends JPanel {
+public class PublicInfoPanel extends JPanel implements AdminControllable {
 
     private final DefaultTableModel tableModel;
     private final JTable infoTable;
@@ -27,14 +27,59 @@ public class PublicInfoPanel extends JPanel {
         JButton archiveInfoButton = new JButton("Archive Info");
         archiveInfoButton.addActionListener(e -> archiveInfoDialog());
 
+        JButton deleteInfoButton = new JButton("Delete Info");
+        deleteInfoButton.addActionListener(e -> deleteInfoDialog());
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(createInfoButton);
         buttonPanel.add(archiveInfoButton);
+        buttonPanel.add(deleteInfoButton);
 
         add(new JScrollPane(infoTable), BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
         refreshTable();
+    }
+
+    @Override
+    public void setAdminMode(boolean isAdmin) {
+        if (getComponentCount() >= 2 && getComponent(1) instanceof JPanel) {
+            JPanel buttonPanel = (JPanel) getComponent(1);
+            for (Component c : buttonPanel.getComponents()) {
+                if (c instanceof JButton && ((JButton) c).getText().toLowerCase().contains("delete")) {
+                    c.setVisible(isAdmin);
+                }
+            }
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
+    }
+
+    private void deleteInfoDialog() {
+        int selectedRow = infoTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an item to delete.", "Selection Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int infoId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to delete Info #" + infoId + "?\nThis action cannot be undone.",
+                    "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean success = DatabaseService.getInstance().deletePublicInfo(infoId);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Info deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete info.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error deleting info: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     private void refreshTable() {

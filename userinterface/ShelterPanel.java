@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class ShelterPanel extends JPanel { 
+public class ShelterPanel extends JPanel implements AdminControllable { 
     
     private final DefaultTableModel tableModel;
     private final JTable shelterTable;
@@ -40,6 +40,22 @@ public class ShelterPanel extends JPanel {
         add(buttonPanel, BorderLayout.SOUTH);
         
         refreshTable();
+    }
+
+    @Override
+    public void setAdminMode(boolean isAdmin) {
+        // Enable delete only for admins
+        // Find the button panel and toggle the delete button
+        if (getComponentCount() >= 2 && getComponent(1) instanceof JPanel) {
+            JPanel buttonPanel = (JPanel) getComponent(1);
+            for (Component c : buttonPanel.getComponents()) {
+                if (c instanceof JButton && ((JButton) c).getText().toLowerCase().contains("delete")) {
+                    c.setVisible(isAdmin);
+                }
+            }
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
     }
 
     private void refreshTable() {

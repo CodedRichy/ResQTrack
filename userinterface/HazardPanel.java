@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class HazardPanel extends JPanel {
+public class HazardPanel extends JPanel implements AdminControllable {
 
     private final DefaultTableModel tableModel;
     private final JTable hazardTable;
@@ -27,14 +27,59 @@ public class HazardPanel extends JPanel {
         JButton resolveHazardButton = new JButton("Resolve Hazard");
         resolveHazardButton.addActionListener(e -> resolveHazardDialog());
 
+        JButton deleteHazardButton = new JButton("Delete Hazard");
+        deleteHazardButton.addActionListener(e -> deleteHazardDialog());
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(createHazardButton);
         buttonPanel.add(resolveHazardButton);
+        buttonPanel.add(deleteHazardButton);
 
         add(new JScrollPane(hazardTable), BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
         refreshTable();
+    }
+
+    @Override
+    public void setAdminMode(boolean isAdmin) {
+        if (getComponentCount() >= 2 && getComponent(1) instanceof JPanel) {
+            JPanel buttonPanel = (JPanel) getComponent(1);
+            for (Component c : buttonPanel.getComponents()) {
+                if (c instanceof JButton && ((JButton) c).getText().toLowerCase().contains("delete")) {
+                    c.setVisible(isAdmin);
+                }
+            }
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
+    }
+
+    private void deleteHazardDialog() {
+        int selectedRow = hazardTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a hazard to delete.", "Selection Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int hazardId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to delete Hazard #" + hazardId + "?\nThis action cannot be undone.",
+                    "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean success = databaseService.deleteHazard(hazardId);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Hazard deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete hazard.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error deleting hazard: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     private void refreshTable() {

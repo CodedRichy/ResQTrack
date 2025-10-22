@@ -93,6 +93,13 @@ public class UserPanel extends JPanel {
                     JOptionPane.INFORMATION_MESSAGE);
             
             configureTabsForRole(authenticatedUser.getRole());
+            // Toggle admin mode for panels that support it
+            boolean isAdmin = "Admin".equalsIgnoreCase(authenticatedUser.getRole());
+            panels.values().forEach(p -> {
+                if (p instanceof userinterface.AdminControllable) {
+                    ((userinterface.AdminControllable) p).setAdminMode(isAdmin);
+                }
+            });
 
         } else {
             JOptionPane.showMessageDialog(this,

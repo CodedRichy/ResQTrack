@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.List;
 import java.text.SimpleDateFormat;
 
-public class SosAlertPanel extends JPanel {
+public class SosAlertPanel extends JPanel implements AdminControllable {
 
     private final DefaultTableModel tableModel;
     private final JTable alertTable;
@@ -28,14 +28,59 @@ public class SosAlertPanel extends JPanel {
         JButton resolveAlertButton = new JButton("Resolve Alert");
         resolveAlertButton.addActionListener(e -> resolveAlertDialog());
 
+        JButton deleteAlertButton = new JButton("Delete Alert");
+        deleteAlertButton.addActionListener(e -> deleteAlertDialog());
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(createAlertButton);
         buttonPanel.add(resolveAlertButton);
+        buttonPanel.add(deleteAlertButton);
 
         add(new JScrollPane(alertTable), BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
         refreshTable();
+    }
+
+    @Override
+    public void setAdminMode(boolean isAdmin) {
+        if (getComponentCount() >= 2 && getComponent(1) instanceof JPanel) {
+            JPanel buttonPanel = (JPanel) getComponent(1);
+            for (Component c : buttonPanel.getComponents()) {
+                if (c instanceof JButton && ((JButton) c).getText().toLowerCase().contains("delete")) {
+                    c.setVisible(isAdmin);
+                }
+            }
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
+    }
+
+    private void deleteAlertDialog() {
+        int selectedRow = alertTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an alert to delete.", "Selection Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int alertId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to delete Alert #" + alertId + "?\nThis action cannot be undone.",
+                    "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean success = databaseService.deleteSosAlert(alertId);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Alert deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete alert.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error deleting alert: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     private void refreshTable() {

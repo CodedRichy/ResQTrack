@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
-public class TaskPanel extends JPanel {
+public class TaskPanel extends JPanel implements AdminControllable {
 
     private final DefaultTableModel tableModel;
     private final JTable taskTable;
@@ -27,14 +27,59 @@ public class TaskPanel extends JPanel {
         JButton updateStatusButton = new JButton("Update Status");
         updateStatusButton.addActionListener(e -> updateStatusDialog());
 
+        JButton deleteTaskButton = new JButton("Delete Task");
+        deleteTaskButton.addActionListener(e -> deleteTaskDialog());
+
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(createTaskButton);
         buttonPanel.add(updateStatusButton);
+        buttonPanel.add(deleteTaskButton);
 
         add(new JScrollPane(taskTable), BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
         refreshTable();
+    }
+
+    @Override
+    public void setAdminMode(boolean isAdmin) {
+        if (getComponentCount() >= 2 && getComponent(1) instanceof JPanel) {
+            JPanel buttonPanel = (JPanel) getComponent(1);
+            for (Component c : buttonPanel.getComponents()) {
+                if (c instanceof JButton && ((JButton) c).getText().toLowerCase().contains("delete")) {
+                    c.setVisible(isAdmin);
+                }
+            }
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        }
+    }
+
+    private void deleteTaskDialog() {
+        int selectedRow = taskTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a task to delete.", "Selection Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            int taskId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to delete Task #" + taskId + "?\nThis action cannot be undone.",
+                    "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (confirm == JOptionPane.YES_OPTION) {
+                boolean success = databaseService.deleteTask(taskId);
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Task deleted successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    refreshTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete task.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error deleting task: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
     }
 
     private void refreshTable() {
