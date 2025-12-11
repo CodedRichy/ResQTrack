@@ -122,8 +122,6 @@ public class HazardPanel extends JPanel implements AdminControllable {
             }
 
             try {
-                // Create a temporary Hazard object for insertion
-                // The database will auto-generate the ID
                 Hazard newHazard = new Hazard(0, description, location);
                 boolean success = databaseService.createHazard(newHazard);
                 
